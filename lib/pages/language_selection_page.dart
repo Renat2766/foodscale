@@ -3,7 +3,7 @@ import 'package:food_scale/design/colors.dart';
 import 'package:food_scale/design/dimensions.dart';
 import 'package:food_scale/design/fonts.dart';
 import 'package:food_scale/pages/home_page.dart';
-import 'package:food_scale/widgets/customButton.dart';
+import 'package:food_scale/widgets/custom_button.dart';
 
 class LanguageSelectionPage extends StatelessWidget {
   const LanguageSelectionPage({super.key});

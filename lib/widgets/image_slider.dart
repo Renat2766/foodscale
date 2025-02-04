@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:food_scale/widgets/fullScreenSlider.dart';
+import 'package:food_scale/widgets/full_screen_slider.dart';
 import 'package:food_scale/design/fonts.dart';
 import 'package:food_scale/design/colors.dart';
 

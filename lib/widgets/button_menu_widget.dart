@@ -43,7 +43,7 @@ class ButtonMenuWidgetState extends State<ButtonMenuWidget> {
                 widget.onCategorySelected(categoryName);
               },
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   color: isSelected ? Colors.grey[300] : Colors.transparent,
                   borderRadius: BorderRadius.circular(12),

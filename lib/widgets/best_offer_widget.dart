@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:food_scale/design/colors.dart'; // Цвета
 import 'package:food_scale/design/fonts.dart'; // Шрифты
-import 'package:food_scale/widgets/productCard.dart'; // Правильный импорт и имя виджета
+import 'package:food_scale/widgets/product_card.dart'; // Правильный импорт и имя виджета
 
 class BestOfferWidget extends StatelessWidget {
   final Map<String, dynamic> productData;

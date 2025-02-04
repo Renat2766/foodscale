@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:food_scale/design/colors.dart';
 import 'package:food_scale/design/fonts.dart';
-import 'package:food_scale/widgets/listCard.dart';
+import 'package:food_scale/widgets/list_card.dart';
 import 'package:food_scale/widgets/promokodBanner.dart';
-import 'package:food_scale/widgets/buttonMenuWidget.dart';
-import 'package:food_scale/widgets/bestOfferWidget.dart';
-import 'package:food_scale/widgets/customSliverAppBar.dart';
-import 'package:food_scale/widgets/imageSlider.dart';
+import 'package:food_scale/widgets/button_menu_widget.dart';
+import 'package:food_scale/widgets/best_offer_widget.dart';
+import 'package:food_scale/widgets/custom_sliver_appbar.dart';
+import 'package:food_scale/widgets/image_slider.dart';
 import 'package:food_scale/services/data_service.dart';
 
 class HomePage extends StatefulWidget {
