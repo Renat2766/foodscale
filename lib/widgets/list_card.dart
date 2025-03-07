@@ -41,24 +41,12 @@ class _ListCardState extends State<ListCard> {
         final String imageUrl =
             (item['imagePath'] ?? 'assets/images/default_image.png') as String;
         final String price = '${item['price'] ?? 'Цена не указана'} ₸';
-        final String rating = getProductRatings(
-            item['ratings'] as List<dynamic>?, widget.rootRatings);
+        final String rating = getProductRatings(item['ratings'], widget.rootRatings);
 
         return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
-          child: GestureDetector(
-            onHorizontalDragUpdate: (details) {
-              setState(() {
-                _offset += details.delta.dx;
-                if (_offset > 70) _offset = 70;
-                if (_offset < -70) _offset = -70;
-              });
-            },
-            onHorizontalDragEnd: (details) {
-              setState(() {
-                _offset = 0.0;
-              });
-            },
+          padding: const EdgeInsets.only(top: 8.0), // Убраны горизонтальные отступы
+          child: ClipRRect(
+            // borderRadius: BorderRadius.circular(12), // Скругление всей карточки
             child: Stack(
               children: [
                 if (_offset > 0)
@@ -66,11 +54,8 @@ class _ListCardState extends State<ListCard> {
                     alignment: Alignment.centerLeft,
                     child: Container(
                       width: 70,
-                      height: 104,
-                      decoration: BoxDecoration(
-                        color: primaryColor,
-                        // borderRadius: BorderRadius.circular(12),
-                      ),
+                      height: 114,
+                      color: primaryColor,
                       child: const Icon(
                         Icons.add_shopping_cart,
                         color: Colors.white,
@@ -82,142 +67,209 @@ class _ListCardState extends State<ListCard> {
                     alignment: Alignment.centerRight,
                     child: Container(
                       width: 70,
-                      height: 104,
-                      decoration: BoxDecoration(
-                        color: errorColor,
-                        // borderRadius: BorderRadius.circular(12),
-                      ),
+                      height: 114,
+                      color: errorColor,
                       child: const Icon(
                         Icons.delete,
                         color: Colors.white,
                       ),
                     ),
                   ),
-                Transform.translate(
-                  offset: Offset(_offset, 0),
-                  child: Container(
-                    height: 104,
-                    decoration: BoxDecoration(
-                      color: whiteColor,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 14, vertical: 0),
-                        child: Row(
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: Container(
-                                width: 80,
-                                height: 80,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: imageUrl.startsWith('http')
-                                    ? CachedNetworkImage(
-                                        imageUrl: imageUrl,
-                                        fit: BoxFit.cover,
-                                        placeholder: (context, url) =>
-                                            const CircularProgressIndicator(),
-                                        errorWidget: (context, url, error) =>
-                                            const Icon(Icons.error),
-                                      )
-                                    : Image.asset(
-                                        imageUrl,
-                                        fit: BoxFit.cover,
-                                        errorBuilder:
-                                            (context, error, stackTrace) =>
-                                                const Icon(Icons.error),
+                GestureDetector(
+                  onHorizontalDragUpdate: (details) {
+                    setState(() {
+                      _offset += details.delta.dx;
+                      if (_offset > 70) _offset = 70; // Свайп вправо до 70 пикселей
+                      if (_offset < -70) _offset = -70; // Свайп влево до -70 пикселей
+                    });
+                  },
+                  onHorizontalDragEnd: (details) {
+                    if (_offset != 0.0) {
+                      setState(() {
+                        if (_offset > 0) {
+                          // Действие при свайпе вправо (например, добавить в корзину)
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Добавлено в корзину')),
+                          );
+                        } else if (_offset < 0) {
+                          // Действие при свайпе влево (например, удалить)
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Удалено')),
+                          );
+                        }
+                        _offset = 0.0; // Сброс позиции
+                      });
+                    }
+                  },
+                  child: Transform.translate(
+                    offset: Offset(_offset, 0),
+                    child: Container(
+                      // Карточка растягивается на всю ширину экрана
+                      decoration: BoxDecoration(
+                        color: whiteColor,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Center(
+                        // Центрируем содержимое
+                        child: SizedBox(
+                          width: 370, 
+                          height: 114,// Фиксированная ширина контента 370px
+                          child: Stack(
+                            children: [
+                              IntrinsicHeight(
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center, // Контент по центру внутри 370px
+                                  children: [
+                                    // Левая часть: изображение + рейтинг
+                                    Container(
+                                      width: 100,
+                                      padding: const EdgeInsets.all(8),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          if (rating.isNotEmpty)
+                                            Row(
+                                              children: [
+                                                SvgPicture.asset(
+                                                  'assets/images/icon_star.svg',
+                                                  height: 10,
+                                                  width: 10,
+                                                  colorFilter: const ColorFilter.mode(
+                                                      primaryColor, BlendMode.srcIn),
+                                                ),
+                                                const SizedBox(width: 5),
+                                                Flexible(
+                                                  child: Text(
+                                                    rating,
+                                                    style: const TextStyle(
+                                                      fontSize: 10,
+                                                      fontFamily: russianFont,
+                                                      fontWeight: FontWeight.w500,
+                                                      color: primaryColor,
+                                                    ),
+                                                    overflow: TextOverflow.ellipsis,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          const Spacer(),
+                                          ClipRRect(
+                                            borderRadius: BorderRadius.circular(8),
+                                            child: SizedBox(
+                                              width: 84,
+                                              height: 84,
+                                              child: imageUrl.startsWith('http')
+                                                  ? CachedNetworkImage(
+                                                      imageUrl: imageUrl,
+                                                      fit: BoxFit.cover,
+                                                      placeholder: (context, url) =>
+                                                          const CircularProgressIndicator(),
+                                                      errorWidget: (context, url, error) =>
+                                                          const Icon(Icons.error),
+                                                    )
+                                                  : Image.asset(
+                                                      imageUrl,
+                                                      fit: BoxFit.cover,
+                                                      errorBuilder: (context, error, stackTrace) =>
+                                                          const Icon(Icons.error),
+                                                    ),
+                                                    
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    title,
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      fontFamily: russianFont,
-                                      fontWeight: FontWeight.w700,
-                                      color: titleColor,
                                     ),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    description,
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      fontFamily: russianFont,
-                                      fontWeight: FontWeight.w500,
-                                      color: textColor,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 0),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Container(
+                                    
+                                    // Правая часть: текст и кнопка
+                                    Expanded(
+                                      child: Padding(
                                         padding: const EdgeInsets.symmetric(
-                                            horizontal: 8, vertical: 4),
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xFFEDEDED),
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                        ),
-                                        child: Text(
-                                          price,
-                                          style: const TextStyle(
-                                            fontSize: 12,
-                                            fontFamily: kazakhFont,
-                                            fontWeight: FontWeight.w700,
-                                            color: titleColor,
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Padding(
-                                        padding: const EdgeInsets.only(
-                                            right:
-                                                16.0), 
-                                        child: ElevatedButton(
-                                          onPressed: () {
-                                            ScaffoldMessenger.of(context)
-                                                .showSnackBar(
-                                              SnackBar(
-                                                content: Text(
-                                                    'Кнопка Add нажата для $title'),
+                                            vertical: 8, horizontal: 12),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              title,
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                                fontFamily: russianFont,
+                                                fontWeight: FontWeight.w700,
+                                                color: titleColor,
                                               ),
-                                            );
-                                          },
-                                          style: ElevatedButton.styleFrom(
-                                            padding: EdgeInsets.zero,
-                                            shape: const CircleBorder(),
-                                            backgroundColor: primaryColor,
-                                            minimumSize: const Size(24, 24),
-                                          ),
-                                          child: const Icon(
-                                            Icons.add,
-                                            size: 20,
-                                            color: whiteColor,
-                                          ),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              description,
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: const TextStyle(
+                                                fontSize: 12,
+                                                fontFamily: russianFont,
+                                                fontWeight: FontWeight.w500,
+                                                color: textColor,
+                                              ),
+                                            ),
+                                            const Spacer(),
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              children: [
+                                                Container(
+                                                  padding: const EdgeInsets.symmetric(
+                                                      horizontal: 8, vertical: 4),
+                                                  decoration: BoxDecoration(
+                                                    color: const Color(0xFFEDEDED),
+                                                    borderRadius: BorderRadius.circular(12),
+                                                  ),
+                                                  child: Text(
+                                                    price,
+                                                    style: const TextStyle(
+                                                      fontSize: 12,
+                                                      fontFamily: kazakhFont,
+                                                      fontWeight: FontWeight.w700,
+                                                      color: titleColor,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
                                         ),
                                       ),
-                                    ],
-                                  )
-                                ],
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
-                        )),
+                              // Кнопка "Добавить" в правом нижнем углу
+                              Positioned(
+                                right: 8,
+                                bottom: -5,
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('Кнопка Add нажата для $title'),
+                                      ),
+                                    );
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    padding: EdgeInsets.zero,
+                                    shape: const CircleBorder(),
+                                    backgroundColor: primaryColor,
+                                    minimumSize: const Size(24, 24),
+                                  ),
+                                  child: const Icon(
+                                    Icons.add,
+                                    size: 20,
+                                    color: whiteColor,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -228,9 +280,13 @@ class _ListCardState extends State<ListCard> {
     );
   }
 
-  String getProductRatings(
-      List<dynamic>? productRatings, List<dynamic> rootRatings) {
-    if (productRatings == null || productRatings.isEmpty) {
+  String getProductRatings(dynamic productRatings, List<dynamic> rootRatings) {
+    if (productRatings == null ||
+        productRatings is! List ||
+        productRatings.isEmpty) {
+      return '';
+    }
+    if (rootRatings.isEmpty) {
       return '';
     }
 
